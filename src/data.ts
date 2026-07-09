@@ -11,7 +11,7 @@ export const profile = {
   phone: "+55 (27) 99312-2222",
   email: "gcordeirocarvalho97@gmail.com",
   github: "https://github.com/gabcordeiro",
-  linkedin: "https://www.linkedin.com/in/gabriel-cordeiro-a2a1351bb/",
+  linkedin: "https://www.linkedin.com/in/gabriel-cordeiro-de-carvalho-a2a1351bb/",
   summary:
     "Bacharel em Ciência da Computação (UVV) com sólida experiência no desenvolvimento de sistemas escaláveis utilizando .NET (C#) e Python (Flask). Especialista em front-end moderno com React, TypeScript e Tailwind CSS, focado na integração de APIs REST e automação de regras de negócio complexas. Experiência comprovada em projetos de alta complexidade técnica, como Gêmeos Digitais industriais e sistemas de gestão comercial com motores de cálculo dinâmicos.",
 };
