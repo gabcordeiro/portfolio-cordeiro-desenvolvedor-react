@@ -166,6 +166,36 @@ button {
   box-shadow: 0 8px 24px rgba(52, 211, 153, 0.35);
 }
 
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.lang-switch {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px;
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  background: var(--surface);
+  font-family: var(--font-mono);
+}
+
+.lang-switch button {
+  padding: 5px 12px;
+  border-radius: 99px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  transition: color 0.2s, background 0.2s;
+}
+
+.lang-switch button.active {
+  color: #052018;
+  background: var(--gradient);
+}
+
 @media (max-width: 860px) {
   .nav-links {
     display: none;

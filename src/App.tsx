@@ -1,16 +1,7 @@
 import type { ReactNode } from "react";
-import {
-  certificates,
-  education,
-  experiences,
-  profile,
-  projects,
-  publications,
-  skillGroups,
-  stats,
-} from "./data";
 import { useReveal, useTypewriter } from "./hooks";
 import { useEffect, useState } from "react";
+import { LanguageProvider, useLanguage } from "./i18n";
 
 const ArrowUpRight = () => (
   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -69,8 +60,33 @@ function Section({ id, kicker, title, sub, children }: {
   );
 }
 
+function LanguageSwitch() {
+  const { lang, setLang } = useLanguage();
+  return (
+    <div className="lang-switch" role="group" aria-label="Language / Idioma">
+      <button
+        type="button"
+        className={lang === "en" ? "active" : ""}
+        onClick={() => setLang("en")}
+        aria-pressed={lang === "en"}
+      >
+        EN
+      </button>
+      <button
+        type="button"
+        className={lang === "pt" ? "active" : ""}
+        onClick={() => setLang("pt")}
+        aria-pressed={lang === "pt"}
+      >
+        PT
+      </button>
+    </div>
+  );
+}
+
 function Nav() {
   const [scrolled, setScrolled] = useState(false);
+  const { t } = useLanguage();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -86,52 +102,56 @@ function Nav() {
           <span className="accent">gabriel</span>.dev
         </a>
         <div className="nav-links">
-          <a href="#projetos">Projetos</a>
-          <a href="#habilidades">Habilidades</a>
-          <a href="#experiencia">Experiência</a>
-          <a href="#publicacoes">Publicações</a>
-          <a href="#formacao">Formação</a>
+          <a href="#projetos">{t.nav.projects}</a>
+          <a href="#habilidades">{t.nav.skills}</a>
+          <a href="#experiencia">{t.nav.experience}</a>
+          <a href="#publicacoes">{t.nav.publications}</a>
+          <a href="#formacao">{t.nav.education}</a>
         </div>
-        <a href="#contato" className="nav-cta">
-          Vamos conversar
-        </a>
+        <div className="nav-actions">
+          <LanguageSwitch />
+          <a href="#contato" className="nav-cta">
+            {t.nav.cta}
+          </a>
+        </div>
       </div>
     </nav>
   );
 }
 
 function Hero() {
-  const role = useTypewriter(profile.roles);
+  const { c, t } = useLanguage();
+  const role = useTypewriter(c.profile.roles);
   return (
     <header className="hero">
       <div className="container">
         <div className="hero-badge">
           <span className="dot" />
-          Disponível para novas oportunidades · {profile.location}
+          {t.hero.badge} · {c.profile.location}
         </div>
         <h1>
-          Olá, eu sou o<br />
-          <span className="gradient-text">{profile.name}</span>
+          {t.hero.hello}<br />
+          <span className="gradient-text">{c.profile.name}</span>
         </h1>
-        <div className="hero-role" aria-label={profile.roles[0]}>
+        <div className="hero-role" aria-label={c.profile.roles[0]}>
           <span className="prompt">~$</span>
           {role}
           <span className="caret" />
         </div>
-        <p className="hero-summary">{profile.summary}</p>
+        <p className="hero-summary">{c.profile.summary}</p>
         <div className="hero-actions">
           <a href="#projetos" className="btn btn-primary">
-            Ver projetos em produção <ArrowUpRight />
+            {t.hero.viewProjects} <ArrowUpRight />
           </a>
-          <a href={profile.github} target="_blank" rel="noreferrer" className="btn btn-ghost">
+          <a href={c.profile.github} target="_blank" rel="noreferrer" className="btn btn-ghost">
             <GithubIcon /> GitHub
           </a>
-          <a href={profile.linkedin} target="_blank" rel="noreferrer" className="btn btn-ghost">
+          <a href={c.profile.linkedin} target="_blank" rel="noreferrer" className="btn btn-ghost">
             <LinkedinIcon /> LinkedIn
           </a>
         </div>
         <div className="hero-stats">
-          {stats.map((s) => (
+          {c.stats.map((s) => (
             <div className="stat" key={s.label}>
               <div className="stat-value">{s.value}</div>
               <div className="stat-label">{s.label}</div>
@@ -144,15 +164,16 @@ function Hero() {
 }
 
 function Projects() {
+  const { c, t } = useLanguage();
   return (
     <Section
       id="projetos"
-      kicker="// projetos"
-      title="Sistemas reais, em produção"
-      sub="Todos hospedados na Vercel — clique e teste agora mesmo. Do motor de cálculo comercial ao visualizador molecular 3D."
+      kicker={t.projects.kicker}
+      title={t.projects.title}
+      sub={t.projects.sub}
     >
       <div className="projects-grid">
-        {projects.map((p) => (
+        {c.projects.map((p) => (
           <a
             key={p.title}
             href={p.url}
@@ -163,18 +184,18 @@ function Projects() {
             <div className="project-top">
               <span className="project-emoji" aria-hidden="true">{p.emoji}</span>
               <span className="project-live">
-                <span className="dot" /> LIVE
+                <span className="dot" /> {t.projects.live}
               </span>
             </div>
             <h3>{p.title}</h3>
             <p>{p.description}</p>
             <div className="project-tags">
-              {p.tags.map((t) => (
-                <span className="tag" key={t}>{t}</span>
+              {p.tags.map((tag) => (
+                <span className="tag" key={tag}>{tag}</span>
               ))}
             </div>
             <span className="project-link">
-              Acessar sistema <ArrowUpRight />
+              {t.projects.openSystem} <ArrowUpRight />
             </span>
           </a>
         ))}
@@ -184,15 +205,16 @@ function Projects() {
 }
 
 function Skills() {
+  const { c, t } = useLanguage();
   return (
     <Section
       id="habilidades"
-      kicker="// stack"
-      title="Habilidades técnicas"
-      sub="Do front-end moderno à automação de regras de negócio no back-end."
+      kicker={t.skills.kicker}
+      title={t.skills.title}
+      sub={t.skills.sub}
     >
       <div className="skills-grid">
-        {skillGroups.map((g) => (
+        {c.skillGroups.map((g) => (
           <div className="skill-card" key={g.title}>
             <div className="skill-card-head">
               <span className="icon" aria-hidden="true">{g.icon}</span>
@@ -211,14 +233,15 @@ function Skills() {
 }
 
 function Experience() {
+  const { c, t } = useLanguage();
   return (
     <Section
       id="experiencia"
-      kicker="// trajetória"
-      title="Experiência profissional"
+      kicker={t.experience.kicker}
+      title={t.experience.title}
     >
       <div className="timeline">
-        {experiences.map((e) => (
+        {c.experiences.map((e) => (
           <div className="timeline-item" key={e.role + e.company}>
             <span className="timeline-period">{e.period}</span>
             <h3>{e.role}</h3>
@@ -237,15 +260,16 @@ function Experience() {
 }
 
 function Publications() {
+  const { c, t } = useLanguage();
   return (
     <Section
       id="publicacoes"
-      kicker="// pesquisa"
-      title="Artigos publicados"
-      sub="Pesquisa em Digital Twins, Realidade Virtual e otimização de processos industriais, publicada em veículos internacionais."
+      kicker={t.publications.kicker}
+      title={t.publications.title}
+      sub={t.publications.sub}
     >
       <div className="pub-list">
-        {publications.map((pub) => (
+        {c.publications.map((pub) => (
           <a key={pub.url} href={pub.url} target="_blank" rel="noreferrer" className="pub-card">
             <span className={`pub-badge ${pub.publisher.toLowerCase()}`}>
               {pub.publisher} · {pub.year}
@@ -265,34 +289,35 @@ function Publications() {
 }
 
 function Education() {
+  const { c, t } = useLanguage();
   return (
     <Section
       id="formacao"
-      kicker="// formação"
-      title="Formação & certificados"
+      kicker={t.education.kicker}
+      title={t.education.title}
     >
       <div className="edu-grid">
         <div className="edu-card">
-          <h3>{education.degree}</h3>
-          <div className="edu-school">{education.school}</div>
-          <span className="edu-period">{education.period}</span>
-          <p>{education.description}</p>
+          <h3>{c.education.degree}</h3>
+          <div className="edu-school">{c.education.school}</div>
+          <span className="edu-period">{c.education.period}</span>
+          <p>{c.education.description}</p>
           <div className="project-tags">
-            {education.highlights.map((h) => (
+            {c.education.highlights.map((h) => (
               <span className="tag" key={h}>{h}</span>
             ))}
           </div>
         </div>
         <div className="cert-card-wrap">
-          <h3>Certificados</h3>
+          <h3>{t.education.certificates}</h3>
           <div className="cert-list">
-            {certificates.map((c) => (
-              <a key={c.title} href={c.url} target="_blank" rel="noreferrer" className="cert-item">
+            {c.certificates.map((cert) => (
+              <a key={cert.title} href={cert.url} target="_blank" rel="noreferrer" className="cert-item">
                 <span className="cert-icon"><CertIcon /></span>
                 <span>
-                  <span className="cert-name">{c.title}</span>
+                  <span className="cert-name">{cert.title}</span>
                   <br />
-                  <span className="cert-issuer">{c.issuer}</span>
+                  <span className="cert-issuer">{cert.issuer}</span>
                 </span>
               </a>
             ))}
@@ -305,32 +330,30 @@ function Education() {
 
 function Contact() {
   const ref = useReveal<HTMLDivElement>();
+  const { c, t } = useLanguage();
   return (
     <section id="contato">
       <div className="container">
         <div className="contact-card reveal" ref={ref}>
           <h2>
-            Vamos construir algo <span className="gradient-text">incrível</span>?
+            {t.contact.title} <span className="gradient-text">{t.contact.titleAccent}</span>?
           </h2>
-          <p>
-            Estou aberto a oportunidades como desenvolvedor full-stack.
-            Me chame para conversar sobre como posso agregar ao seu time.
-          </p>
+          <p>{t.contact.body}</p>
           <div className="contact-actions">
-            <a href={`mailto:${profile.email}`} className="btn btn-primary">
-              <MailIcon /> Enviar e-mail
+            <a href={`mailto:${c.profile.email}`} className="btn btn-primary">
+              <MailIcon /> {t.contact.sendEmail}
             </a>
-            <a href={profile.linkedin} target="_blank" rel="noreferrer" className="btn btn-ghost">
+            <a href={c.profile.linkedin} target="_blank" rel="noreferrer" className="btn btn-ghost">
               <LinkedinIcon /> LinkedIn
             </a>
-            <a href={profile.github} target="_blank" rel="noreferrer" className="btn btn-ghost">
+            <a href={c.profile.github} target="_blank" rel="noreferrer" className="btn btn-ghost">
               <GithubIcon /> GitHub
             </a>
           </div>
           <div className="contact-meta">
-            <span>{profile.email}</span>
-            <span>{profile.phone}</span>
-            <span>{profile.location}</span>
+            <span>{c.profile.email}</span>
+            <span>{c.profile.phone}</span>
+            <span>{c.profile.location}</span>
           </div>
         </div>
       </div>
@@ -339,21 +362,22 @@ function Contact() {
 }
 
 function Footer() {
+  const { c, t } = useLanguage();
   return (
     <footer>
       <div className="container footer-inner">
-        <span>© {new Date().getFullYear()} {profile.fullName}</span>
+        <span>© {new Date().getFullYear()} {c.profile.fullName}</span>
         <div className="footer-links">
-          <a href={profile.github} target="_blank" rel="noreferrer">GitHub</a>
-          <a href={profile.linkedin} target="_blank" rel="noreferrer">LinkedIn</a>
-          <a href={`mailto:${profile.email}`}>E-mail</a>
+          <a href={c.profile.github} target="_blank" rel="noreferrer">GitHub</a>
+          <a href={c.profile.linkedin} target="_blank" rel="noreferrer">LinkedIn</a>
+          <a href={`mailto:${c.profile.email}`}>{t.footer.email}</a>
         </div>
       </div>
     </footer>
   );
 }
 
-export default function App() {
+function PortfolioContent() {
   return (
     <>
       <div className="bg-decor" aria-hidden="true" />
@@ -369,5 +393,13 @@ export default function App() {
       </main>
       <Footer />
     </>
+  );
+}
+
+export default function App() {
+  return (
+    <LanguageProvider>
+      <PortfolioContent />
+    </LanguageProvider>
   );
 }
