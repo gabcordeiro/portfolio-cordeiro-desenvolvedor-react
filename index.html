@@ -6,21 +6,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="Gabriel Cordeiro — Desenvolvedor Full-Stack. React, TypeScript, .NET, Python. Bacharel em Ciência da Computação com artigos publicados em Digital Twins e 9 projetos em produção."
+      content="Gabriel Cordeiro — Engenheiro Front-end. React e TypeScript, produtos em produção com demos em vídeo e pesquisa publicada (ACM/IEEE)."
     />
-    <meta property="og:title" content="Gabriel Cordeiro · Desenvolvedor Full-Stack" />
+    <meta property="og:title" content="Gabriel Cordeiro · Engenheiro Front-end" />
     <meta
       property="og:description"
-      content="React · TypeScript · .NET · Python — Portfólio com projetos em produção e pesquisa publicada (ACM/IEEE)."
+      content="React · TypeScript — MatchCV, Trampa, Faro Study e mais, com demos em vídeo."
     />
     <meta property="og:type" content="website" />
+    <meta property="og:image" content="/videos/matchcv-poster.webp" />
+    <meta name="theme-color" content="#0b0b0c" />
+    <script>
+      (function () {
+        var t;
+        try { t = localStorage.getItem("theme"); } catch (e) {}
+        if (t !== "light" && t !== "dark") {
+          t = window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+        }
+        document.documentElement.dataset.theme = t;
+      })();
+    </script>
+    <link rel="preload" as="image" href="/videos/matchcv-poster.webp" type="image/webp" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap"
       rel="stylesheet"
     />
-    <title>Gabriel Cordeiro · Desenvolvedor Full-Stack</title>
+    <title>Gabriel Cordeiro · Engenheiro Front-end</title>
   </head>
   <body>
     <div id="root"></div>

@@ -1,5 +1,7 @@
-import type { ReactNode } from "react";
+import { useEffect, useMemo, useState } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import {
+  caseStudies,
   certificates,
   education,
   experiences,
@@ -9,133 +11,182 @@ import {
   skillGroups,
   stats,
 } from "./data";
-import { useReveal, useTypewriter } from "./hooks";
-import { useEffect, useState } from "react";
+import type { CaseStudy as CaseStudyData } from "./data";
+import { useCopy, useReveal, useTheme } from "./hooks";
+import { CaseStudy, VideoDialog } from "./CaseStudy";
+import { CommandPalette } from "./CommandPalette";
+import type { Command } from "./CommandPalette";
+import {
+  ArrowRight,
+  ArrowUpRight,
+  Check,
+  Copy,
+  GithubIcon,
+  LinkedinIcon,
+  Moon,
+  Search,
+  Sun,
+} from "./icons";
 
-const ArrowUpRight = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <path d="M7 17 17 7M8 7h9v9" />
-  </svg>
-);
+const sections = [
+  { id: "trabalhos", label: "Trabalhos" },
+  { id: "projetos", label: "Projetos" },
+  { id: "stack", label: "Stack" },
+  { id: "experiencia", label: "Experiência" },
+  { id: "pesquisa", label: "Pesquisa" },
+  { id: "contato", label: "Contato" },
+];
 
-const GithubIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-    <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.55v-2.17c-3.2.7-3.87-1.36-3.87-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.19 1.76 1.19 1.03 1.75 2.69 1.25 3.34.95.1-.74.4-1.25.72-1.53-2.55-.29-5.24-1.28-5.24-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.78 0c2.2-1.49 3.16-1.18 3.16-1.18.63 1.59.24 2.76.12 3.05.74.81 1.18 1.83 1.18 3.09 0 4.41-2.69 5.38-5.26 5.66.41.36.78 1.05.78 2.13v3.16c0 .3.2.67.8.55A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5Z" />
-  </svg>
-);
+const isMac = typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.platform);
 
-const LinkedinIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-    <path d="M20.45 20.45h-3.55v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.35V9h3.41v1.56h.05a3.74 3.74 0 0 1 3.37-1.85c3.6 0 4.27 2.37 4.27 5.46v6.28ZM5.34 7.43a2.06 2.06 0 1 1 0-4.12 2.06 2.06 0 0 1 0 4.12ZM7.12 20.45H3.56V9h3.56v11.45Z" />
-  </svg>
-);
-
-const MailIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <rect x="2" y="4" width="20" height="16" rx="2" />
-    <path d="m2 7 10 7L22 7" />
-  </svg>
-);
-
-const CertIcon = () => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-    <circle cx="12" cy="9" r="6" />
-    <path d="M8.5 14 7 22l5-3 5 3-1.5-8" />
-  </svg>
-);
-
-function Section({ id, kicker, title, sub, children }: {
+function Section({ id, index, title, sub, children }: {
   id: string;
-  kicker: string;
+  index: string;
   title: string;
   sub?: string;
   children: ReactNode;
 }) {
   const headRef = useReveal<HTMLDivElement>();
-  const bodyRef = useReveal<HTMLDivElement>();
   return (
-    <section id={id}>
+    <section id={id} className="section" aria-labelledby={`${id}-title`}>
       <div className="container">
         <div className="section-head reveal" ref={headRef}>
-          <span className="section-kicker">{kicker}</span>
-          <h2 className="section-title">{title}</h2>
+          <span className="section-index">{index}</span>
+          <h2 className="section-title" id={`${id}-title`}>{title}</h2>
           {sub && <p className="section-sub">{sub}</p>}
         </div>
-        <div className="reveal" ref={bodyRef}>
-          {children}
-        </div>
+        {children}
       </div>
     </section>
   );
 }
 
-function Nav() {
+function Reveal({ children, className = "" }: { children: ReactNode; className?: string }) {
+  const ref = useReveal<HTMLDivElement>();
+  return <div className={`reveal ${className}`} ref={ref}>{children}</div>;
+}
+
+function Nav({ theme, onToggleTheme, onOpenPalette }: {
+  theme: string;
+  onToggleTheme: () => void;
+  onOpenPalette: () => void;
+}) {
   const [scrolled, setScrolled] = useState(false);
+  const [current, setCurrent] = useState("");
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) if (e.isIntersecting) setCurrent(e.target.id);
+      },
+      { rootMargin: "-45% 0px -50% 0px" }
+    );
+    sections.forEach((s) => {
+      const el = document.getElementById(s.id);
+      if (el) observer.observe(el);
+    });
+
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      observer.disconnect();
+    };
   }, []);
 
   return (
-    <nav className={`nav ${scrolled ? "scrolled" : ""}`}>
+    <nav className={`nav ${scrolled ? "scrolled" : ""}`} aria-label="Principal">
       <div className="container nav-inner">
-        <a href="#" className="nav-logo">
-          <span className="accent">gabriel</span>.dev
+        <a href="#top" className="nav-logo" aria-label="Gabriel Cordeiro — início">
+          <span className="logo-mark" aria-hidden="true">gc</span>
+          <span className="logo-name">Gabriel Cordeiro</span>
         </a>
         <div className="nav-links">
-          <a href="#projetos">Projetos</a>
-          <a href="#habilidades">Habilidades</a>
-          <a href="#experiencia">Experiência</a>
-          <a href="#publicacoes">Publicações</a>
-          <a href="#formacao">Formação</a>
+          {sections.slice(0, 5).map((s) => (
+            <a key={s.id} href={`#${s.id}`} aria-current={current === s.id ? "true" : undefined}>
+              {s.label}
+            </a>
+          ))}
         </div>
-        <a href="#contato" className="nav-cta">
-          Vamos conversar
-        </a>
+        <div className="nav-tools">
+          <button type="button" className="kbd-btn" onClick={onOpenPalette} aria-label="Abrir paleta de comandos">
+            <Search size={14} />
+            <span className="kbd-btn-label">Buscar</span>
+            <kbd>{isMac ? "⌘" : "Ctrl"} K</kbd>
+          </button>
+          <button
+            type="button"
+            className="icon-btn"
+            onClick={onToggleTheme}
+            aria-label={theme === "dark" ? "Ativar tema claro" : "Ativar tema escuro"}
+          >
+            {theme === "dark" ? <Sun /> : <Moon />}
+          </button>
+          <a href="#contato" className="btn btn-sm btn-solid nav-cta">Contato</a>
+        </div>
       </div>
     </nav>
   );
 }
 
-function Hero() {
-  const role = useTypewriter(profile.roles);
+function Hero({ onWatch }: { onWatch: (c: CaseStudyData) => void }) {
+  const { copied, copy } = useCopy();
   return (
-    <header className="hero">
-      <div className="container">
-        <div className="hero-badge">
-          <span className="dot" />
-          Disponível para novas oportunidades · {profile.location}
+    <header className="hero" id="top">
+      <div className="container hero-grid">
+        <div className="hero-copy">
+          <p className="hero-status">
+            <span className="status-dot" aria-hidden="true" />
+            Disponível para novas oportunidades · {profile.location}
+          </p>
+          <h1 className="hero-title">
+            {profile.title.replace("-", "\u2011")} que transforma ideias em{" "}
+            <em>produtos reais</em>.
+          </h1>
+          <p className="hero-summary">{profile.summary}</p>
+          <div className="hero-actions">
+            <a href="#trabalhos" className="btn btn-solid">
+              Ver trabalhos <ArrowRight />
+            </a>
+            <button type="button" className="btn btn-line" onClick={() => copy(profile.email)}>
+              {copied ? <Check /> : <Copy />}
+              <span aria-live="polite">{copied ? "E-mail copiado" : "Copiar e-mail"}</span>
+            </button>
+            <a href={profile.github} target="_blank" rel="noreferrer" className="icon-btn icon-btn-lg" aria-label="GitHub">
+              <GithubIcon />
+            </a>
+            <a href={profile.linkedin} target="_blank" rel="noreferrer" className="icon-btn icon-btn-lg" aria-label="LinkedIn">
+              <LinkedinIcon />
+            </a>
+          </div>
+          <dl className="hero-stats">
+            {stats.map((s) => (
+              <div key={s.label}>
+                <dt>{s.label}</dt>
+                <dd>{s.value}</dd>
+              </div>
+            ))}
+          </dl>
         </div>
-        <h1>
-          Olá, eu sou o<br />
-          <span className="gradient-text">{profile.name}</span>
-        </h1>
-        <div className="hero-role" aria-label={profile.roles[0]}>
-          <span className="prompt">~$</span>
-          {role}
-          <span className="caret" />
-        </div>
-        <p className="hero-summary">{profile.summary}</p>
-        <div className="hero-actions">
-          <a href="#projetos" className="btn btn-primary">
-            Ver projetos em produção <ArrowUpRight />
-          </a>
-          <a href={profile.github} target="_blank" rel="noreferrer" className="btn btn-ghost">
-            <GithubIcon /> GitHub
-          </a>
-          <a href={profile.linkedin} target="_blank" rel="noreferrer" className="btn btn-ghost">
-            <LinkedinIcon /> LinkedIn
-          </a>
-        </div>
-        <div className="hero-stats">
-          {stats.map((s) => (
-            <div className="stat" key={s.label}>
-              <div className="stat-value">{s.value}</div>
-              <div className="stat-label">{s.label}</div>
-            </div>
+
+        <div className="hero-reel" aria-label="Projetos em vídeo">
+          {caseStudies.slice(0, 4).map((c, i) => (
+            <button
+              type="button"
+              key={c.slug}
+              className="reel-tile"
+              style={{ "--i": i } as CSSProperties}
+              onClick={() => onWatch(c)}
+              aria-label={`Assistir demo de ${c.title}`}
+            >
+              <img src={c.video.poster} alt="" loading={i < 2 ? "eager" : "lazy"} decoding="async" />
+              <span className="reel-label">
+                <span>{c.title}</span>
+                <span className="reel-time">{c.video.duration}</span>
+              </span>
+            </button>
           ))}
         </div>
       </div>
@@ -143,231 +194,233 @@ function Hero() {
   );
 }
 
-function Projects() {
+function Work({ onWatch }: { onWatch: (c: CaseStudyData) => void }) {
   return (
     <Section
-      id="projetos"
-      kicker="// projetos"
-      title="Sistemas reais, em produção"
-      sub="Todos hospedados na Vercel — clique e teste agora mesmo. Do motor de cálculo comercial ao visualizador molecular 3D."
+      id="trabalhos"
+      index="01"
+      title="Trabalhos selecionados"
+      sub="Produtos completos, do layout à integração com pagamentos e IA. Assista à demo ou abra a versão ao vivo."
     >
-      <div className="projects-grid">
-        {projects.map((p) => (
-          <a
-            key={p.title}
-            href={p.url}
-            target="_blank"
-            rel="noreferrer"
-            className={`project-card ${p.featured ? "featured" : ""}`}
-          >
-            <div className="project-top">
-              <span className="project-emoji" aria-hidden="true">{p.emoji}</span>
-              <span className="project-live">
-                <span className="dot" /> LIVE
-              </span>
-            </div>
-            <h3>{p.title}</h3>
-            <p>{p.description}</p>
-            <div className="project-tags">
-              {p.tags.map((t) => (
-                <span className="tag" key={t}>{t}</span>
-              ))}
-            </div>
-            <span className="project-link">
-              Acessar sistema <ArrowUpRight />
-            </span>
-          </a>
+      <div className="cases">
+        {caseStudies.map((c, i) => (
+          <CaseStudy key={c.slug} data={c} index={i} onWatch={onWatch} />
         ))}
       </div>
     </Section>
   );
 }
 
-function Skills() {
+function Projects() {
   return (
-    <Section
-      id="habilidades"
-      kicker="// stack"
-      title="Habilidades técnicas"
-      sub="Do front-end moderno à automação de regras de negócio no back-end."
-    >
-      <div className="skills-grid">
+    <Section id="projetos" index="02" title="Mais projetos no ar" sub="Todos publicados na Vercel — clique e use agora.">
+      <Reveal>
+        <ul className="project-list">
+          {projects.map((p) => (
+            <li key={p.title}>
+              <a href={p.url} target="_blank" rel="noreferrer" className="project-row">
+                <span className="project-name">{p.title}</span>
+                <span className="project-desc">{p.description}</span>
+                <span className="project-tags">{p.tags.join(" · ")}</span>
+                <span className="project-arrow" aria-hidden="true"><ArrowUpRight /></span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </Reveal>
+    </Section>
+  );
+}
+
+function Stack() {
+  return (
+    <Section id="stack" index="03" title="Stack" sub="Foco em front-end moderno, com back-end suficiente para entregar o produto inteiro.">
+      <Reveal className="stack-grid">
         {skillGroups.map((g) => (
-          <div className="skill-card" key={g.title}>
-            <div className="skill-card-head">
-              <span className="icon" aria-hidden="true">{g.icon}</span>
-              <h3>{g.title}</h3>
-            </div>
-            <div className="skill-list">
-              {g.skills.map((s) => (
-                <span className="skill-chip" key={s}>{s}</span>
-              ))}
-            </div>
+          <div className="stack-col" key={g.title}>
+            <h3>{g.title}</h3>
+            <ul>
+              {g.skills.map((s) => <li key={s}>{s}</li>)}
+            </ul>
           </div>
         ))}
-      </div>
+      </Reveal>
     </Section>
   );
 }
 
 function Experience() {
   return (
-    <Section
-      id="experiencia"
-      kicker="// trajetória"
-      title="Experiência profissional"
-    >
-      <div className="timeline">
-        {experiences.map((e) => (
-          <div className="timeline-item" key={e.role + e.company}>
-            <span className="timeline-period">{e.period}</span>
-            <h3>{e.role}</h3>
-            <div className="timeline-company">{e.company}</div>
-            <p>{e.description}</p>
-            <div className="project-tags">
-              {e.tags.map((t) => (
-                <span className="tag" key={t}>{t}</span>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
+    <Section id="experiencia" index="04" title="Experiência">
+      <Reveal>
+        <ol className="xp-list">
+          {experiences.map((e) => (
+            <li className="xp-row" key={e.role + e.company}>
+              <span className="xp-period">{e.period}</span>
+              <div>
+                <h3>{e.role}</h3>
+                <p className="xp-company">{e.company}</p>
+                <p className="xp-desc">{e.description}</p>
+                <ul className="tags">
+                  {e.tags.map((t) => <li className="tag" key={t}>{t}</li>)}
+                </ul>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </Reveal>
     </Section>
   );
 }
 
-function Publications() {
+function Research() {
   return (
     <Section
-      id="publicacoes"
-      kicker="// pesquisa"
-      title="Artigos publicados"
-      sub="Pesquisa em Digital Twins, Realidade Virtual e otimização de processos industriais, publicada em veículos internacionais."
+      id="pesquisa"
+      index="05"
+      title="Pesquisa & formação"
+      sub="Digital Twins e Realidade Virtual para processos industriais, publicados em veículos internacionais."
     >
-      <div className="pub-list">
-        {publications.map((pub) => (
-          <a key={pub.url} href={pub.url} target="_blank" rel="noreferrer" className="pub-card">
-            <span className={`pub-badge ${pub.publisher.toLowerCase()}`}>
-              {pub.publisher} · {pub.year}
-            </span>
-            <span className="pub-info">
-              <h3>{pub.title}</h3>
-              <span className="pub-venue">{pub.venue}</span>
-            </span>
-            <span className="pub-arrow">
-              <ArrowUpRight />
-            </span>
-          </a>
-        ))}
-      </div>
-    </Section>
-  );
-}
-
-function Education() {
-  return (
-    <Section
-      id="formacao"
-      kicker="// formação"
-      title="Formação & certificados"
-    >
-      <div className="edu-grid">
-        <div className="edu-card">
-          <h3>{education.degree}</h3>
-          <div className="edu-school">{education.school}</div>
-          <span className="edu-period">{education.period}</span>
-          <p>{education.description}</p>
-          <div className="project-tags">
-            {education.highlights.map((h) => (
-              <span className="tag" key={h}>{h}</span>
-            ))}
-          </div>
-        </div>
-        <div className="cert-card-wrap">
-          <h3>Certificados</h3>
-          <div className="cert-list">
-            {certificates.map((c) => (
-              <a key={c.title} href={c.url} target="_blank" rel="noreferrer" className="cert-item">
-                <span className="cert-icon"><CertIcon /></span>
-                <span>
-                  <span className="cert-name">{c.title}</span>
-                  <br />
-                  <span className="cert-issuer">{c.issuer}</span>
-                </span>
+      <Reveal>
+        <ul className="pub-list">
+          {publications.map((pub) => (
+            <li key={pub.url}>
+              <a href={pub.url} target="_blank" rel="noreferrer" className="pub-row">
+                <span className="pub-meta">{pub.publisher} · {pub.year}</span>
+                <span className="pub-title">{pub.title}</span>
+                <span className="pub-venue">{pub.venue}</span>
+                <span className="project-arrow" aria-hidden="true"><ArrowUpRight /></span>
               </a>
-            ))}
-          </div>
+            </li>
+          ))}
+        </ul>
+      </Reveal>
+      <Reveal className="edu-grid">
+        <div className="edu-card">
+          <span className="edu-period">{education.period}</span>
+          <h3>{education.degree}</h3>
+          <p className="xp-company">{education.school}</p>
+          <p className="xp-desc">{education.description}</p>
         </div>
-      </div>
+        <div className="edu-card">
+          <span className="edu-period">Certificados</span>
+          <ul className="cert-list">
+            {certificates.map((c) => (
+              <li key={c.title}>
+                <a href={c.url} target="_blank" rel="noreferrer">
+                  <span>{c.title}</span>
+                  <span className="cert-issuer">{c.issuer}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </Reveal>
     </Section>
   );
 }
 
 function Contact() {
-  const ref = useReveal<HTMLDivElement>();
+  const { copied, copy } = useCopy();
   return (
-    <section id="contato">
+    <section id="contato" className="section contact">
       <div className="container">
-        <div className="contact-card reveal" ref={ref}>
-          <h2>
-            Vamos construir algo <span className="gradient-text">incrível</span>?
+        <Reveal className="contact-inner">
+          <span className="section-index">06</span>
+          <h2 className="contact-title">
+            Procurando alguém para <em>elevar o front‑end</em> do seu time?
           </h2>
-          <p>
-            Estou aberto a oportunidades como desenvolvedor full-stack.
-            Me chame para conversar sobre como posso agregar ao seu time.
-          </p>
           <div className="contact-actions">
-            <a href={`mailto:${profile.email}`} className="btn btn-primary">
-              <MailIcon /> Enviar e-mail
+            <a href={`mailto:${profile.email}`} className="btn btn-solid btn-lg">
+              {profile.email} <ArrowUpRight />
             </a>
-            <a href={profile.linkedin} target="_blank" rel="noreferrer" className="btn btn-ghost">
-              <LinkedinIcon /> LinkedIn
-            </a>
-            <a href={profile.github} target="_blank" rel="noreferrer" className="btn btn-ghost">
-              <GithubIcon /> GitHub
-            </a>
+            <button type="button" className="btn btn-line btn-lg" onClick={() => copy(profile.email)}>
+              {copied ? <Check /> : <Copy />}
+              <span aria-live="polite">{copied ? "Copiado" : "Copiar"}</span>
+            </button>
           </div>
           <div className="contact-meta">
-            <span>{profile.email}</span>
+            <a href={profile.linkedin} target="_blank" rel="noreferrer"><LinkedinIcon size={15} /> LinkedIn</a>
+            <a href={profile.github} target="_blank" rel="noreferrer"><GithubIcon size={15} /> GitHub</a>
             <span>{profile.phone}</span>
-            <span>{profile.location}</span>
           </div>
-        </div>
+        </Reveal>
       </div>
     </section>
   );
 }
 
-function Footer() {
+function Footer({ onOpenPalette }: { onOpenPalette: () => void }) {
   return (
-    <footer>
+    <footer className="footer">
       <div className="container footer-inner">
         <span>© {new Date().getFullYear()} {profile.fullName}</span>
-        <div className="footer-links">
-          <a href={profile.github} target="_blank" rel="noreferrer">GitHub</a>
-          <a href={profile.linkedin} target="_blank" rel="noreferrer">LinkedIn</a>
-          <a href={`mailto:${profile.email}`}>E-mail</a>
-        </div>
+        <span>
+          Feito à mão com React 19 + TypeScript, sem bibliotecas de UI ·{" "}
+          <a href={profile.repo} target="_blank" rel="noreferrer">ver código</a> ·{" "}
+          <button type="button" className="link-btn" onClick={onOpenPalette}>
+            {isMac ? "⌘" : "Ctrl"} K
+          </button>
+        </span>
       </div>
     </footer>
   );
 }
 
 export default function App() {
+  const { theme, toggle } = useTheme();
+  const [watching, setWatching] = useState<CaseStudyData | null>(null);
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  const { copy } = useCopy();
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setPaletteOpen((o) => !o);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  const commands = useMemo<Command[]>(() => {
+    const go = (id: string) => () =>
+      document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+    const open = (url: string) => () => window.open(url, "_blank", "noopener");
+    return [
+      ...sections.map((s) => ({ id: `go-${s.id}`, group: "Navegar", label: s.label, run: go(s.id) })),
+      ...caseStudies.map((c) => ({
+        id: `demo-${c.slug}`,
+        group: "Demos em vídeo",
+        label: c.title,
+        hint: c.video.duration,
+        run: () => setWatching(c),
+      })),
+      ...projects.map((p) => ({ id: `p-${p.title}`, group: "Projetos ao vivo", label: p.title, hint: "abrir", run: open(p.url) })),
+      { id: "copy-email", group: "Ações", label: "Copiar e-mail", hint: profile.email, run: () => copy(profile.email) },
+      { id: "theme", group: "Ações", label: "Alternar tema claro / escuro", run: toggle },
+      { id: "github", group: "Ações", label: "Abrir GitHub", run: open(profile.github) },
+      { id: "linkedin", group: "Ações", label: "Abrir LinkedIn", run: open(profile.linkedin) },
+    ];
+  }, [copy, toggle]);
+
   return (
     <>
-      <div className="bg-decor" aria-hidden="true" />
-      <Nav />
+      <a href="#trabalhos" className="skip-link">Pular para o conteúdo</a>
+      <Nav theme={theme} onToggleTheme={toggle} onOpenPalette={() => setPaletteOpen(true)} />
       <main>
-        <Hero />
+        <Hero onWatch={setWatching} />
+        <Work onWatch={setWatching} />
         <Projects />
-        <Skills />
+        <Stack />
         <Experience />
-        <Publications />
-        <Education />
+        <Research />
         <Contact />
       </main>
-      <Footer />
+      <Footer onOpenPalette={() => setPaletteOpen(true)} />
+      <VideoDialog item={watching} onClose={() => setWatching(null)} />
+      <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} commands={commands} />
     </>
   );
 }
