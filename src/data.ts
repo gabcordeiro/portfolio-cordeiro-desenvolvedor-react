@@ -1,7 +1,7 @@
 export const profile = {
   name: "Gabriel Cordeiro",
   fullName: "Gabriel Cordeiro de Carvalho",
-  title: "Engenheiro Front-end",
+  title: "Desenvolvedor Full-Stack",
   location: "Vila Velha, ES · Brasil",
   phone: "+55 (27) 99312-2222",
   email: "gcordeirocarvalho97@gmail.com",
@@ -9,7 +9,7 @@ export const profile = {
   linkedin: "https://www.linkedin.com/in/gabriel-cordeiro-de-carvalho-a2a1351bb/",
   repo: "https://github.com/gabcordeiro/portfolio-cordeiro-desenvolvedor-react",
   summary:
-    "Desenvolvo produtos web de ponta a ponta com React e TypeScript — da arquitetura de componentes e estado à integração com APIs, autenticação e pagamentos. Bacharel em Ciência da Computação (UVV), com pesquisa publicada na ACM e no IEEE e uma dezena de sistemas rodando em produção.",
+    "Construo produtos inteiros — interface em React e TypeScript, APIs e regras de negócio em C#/.NET e Python, banco Postgres, autenticação, pagamentos e deploy. Fora da web, desenvolvo jogos e simulações em tempo real e faço música. Bacharel em Ciência da Computação (UVV), com pesquisa publicada na ACM e no IEEE e uma dezena de sistemas rodando em produção.",
 };
 
 export const stats = [
@@ -166,12 +166,6 @@ export const projects: Project[] = [
     tags: ["React", "TypeScript", "Gestos"],
   },
   {
-    title: "Travian Clone",
-    description: "Estratégia em tempo real com recursos, construções e evolução.",
-    url: "https://travian-clone.vercel.app/",
-    tags: ["React", "TypeScript", "Game loop"],
-  },
-  {
     title: "Pratique Tabu",
     description: "Aprendizado de tabuada com contas, metas e progresso.",
     url: "https://pratique-tabu-git-main-gabcordeiros-projects.vercel.app/",
@@ -240,15 +234,52 @@ export const skillGroups: SkillGroup[] = [
   },
   {
     title: "Back-end & dados",
-    skills: ["Supabase / PostgreSQL", "APIs REST", "C# / .NET", "Python (Flask)", "Firebase", "SQL"],
+    skills: ["C# / .NET (ASP.NET)", "Python (Flask)", "APIs REST", "Supabase / PostgreSQL", "SQL", "Firebase", "Auth, RLS e webhooks"],
   },
   {
-    title: "Entrega & ferramentas",
-    skills: ["Git / GitHub", "Vercel", "Docker", "Linux", "Postman", "Scrum / Kanban"],
+    title: "Jogos, 3D & simulação",
+    skills: ["C# para simulação", "Realidade Virtual", "Digital Twins", "WebGL / 3D", "Game loop e mecânicas", "C++"],
   },
   {
-    title: "IA aplicada",
-    skills: ["LLMs em produto", "Prompt engineering", "Gemini", "Claude Code", "Extração de dados"],
+    title: "Entrega, IA & ferramentas",
+    skills: ["Git / GitHub", "Vercel", "Docker", "Linux", "LLMs em produto", "Gemini · Claude Code", "Scrum / Kanban"],
+  },
+];
+
+export type Creation = {
+  kind: string;
+  title: string;
+  description: string;
+  tags: string[];
+  url?: string;
+  linkLabel?: string;
+};
+
+export const creations: Creation[] = [
+  {
+    kind: "Jogo",
+    title: "Travian Clone",
+    description:
+      "Jogo de estratégia em tempo real no navegador: produção de recursos, construções, evolução da aldeia e a lógica de tempo que move tudo isso.",
+    tags: ["React", "TypeScript", "Supabase", "Game loop"],
+    url: "https://travian-clone.vercel.app/",
+    linkLabel: "Jogar agora",
+  },
+  {
+    kind: "Simulação · VR",
+    title: "VREnergy & Gêmeos Digitais",
+    description:
+      "Simuladores em Realidade Virtual para treinar procedimentos críticos em subestações elétricas e espelhar uma planta de manufatura em tempo real — pesquisa publicada na ACM e no IEEE.",
+    tags: ["C#", "Realidade Virtual", "Digital Twins", "Simulação"],
+    url: "https://dl.acm.org/doi/10.1145/3691573.3691601",
+    linkLabel: "Ler o artigo",
+  },
+  {
+    kind: "Música",
+    title: "Música autoral",
+    description:
+      "Fora do código, faço música. É de lá que vem o cuidado com ritmo, timing e detalhe que levo para animações, jogos e interfaces.",
+    tags: ["Composição", "Áudio"],
   },
 ];
 

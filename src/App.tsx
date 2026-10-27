@@ -3,6 +3,7 @@ import type { CSSProperties, ReactNode } from "react";
 import {
   caseStudies,
   certificates,
+  creations,
   education,
   experiences,
   profile,
@@ -31,6 +32,7 @@ import {
 const sections = [
   { id: "trabalhos", label: "Trabalhos" },
   { id: "projetos", label: "Projetos" },
+  { id: "criacao", label: "Jogos & música" },
   { id: "stack", label: "Stack" },
   { id: "experiencia", label: "Experiência" },
   { id: "pesquisa", label: "Pesquisa" },
@@ -104,7 +106,7 @@ function Nav({ theme, onToggleTheme, onOpenPalette }: {
           <span className="logo-name">Gabriel Cordeiro</span>
         </a>
         <div className="nav-links">
-          {sections.slice(0, 5).map((s) => (
+          {sections.filter((s) => s.id !== "contato").map((s) => (
             <a key={s.id} href={`#${s.id}`} aria-current={current === s.id ? "true" : undefined}>
               {s.label}
             </a>
@@ -232,9 +234,38 @@ function Projects() {
   );
 }
 
+function Creations() {
+  return (
+    <Section
+      id="criacao"
+      index="03"
+      title="Além da web"
+      sub="Jogos, simulações em tempo real e música — onde lógica e criatividade se encontram."
+    >
+      <Reveal className="make-grid">
+        {creations.map((c) => (
+          <article className="edu-card make-card" key={c.title}>
+            <span className="edu-period">{c.kind}</span>
+            <h3>{c.title}</h3>
+            <p className="xp-desc">{c.description}</p>
+            <ul className="tags">
+              {c.tags.map((t) => <li className="tag" key={t}>{t}</li>)}
+            </ul>
+            {c.url && (
+              <a href={c.url} target="_blank" rel="noreferrer" className="make-link">
+                {c.linkLabel ?? "Abrir"} <ArrowUpRight />
+              </a>
+            )}
+          </article>
+        ))}
+      </Reveal>
+    </Section>
+  );
+}
+
 function Stack() {
   return (
-    <Section id="stack" index="03" title="Stack" sub="Foco em front-end moderno, com back-end suficiente para entregar o produto inteiro.">
+    <Section id="stack" index="04" title="Stack" sub="Do componente ao banco, da API ao deploy — e, quando o projeto pede, motores de jogo e 3D.">
       <Reveal className="stack-grid">
         {skillGroups.map((g) => (
           <div className="stack-col" key={g.title}>
@@ -251,7 +282,7 @@ function Stack() {
 
 function Experience() {
   return (
-    <Section id="experiencia" index="04" title="Experiência">
+    <Section id="experiencia" index="05" title="Experiência">
       <Reveal>
         <ol className="xp-list">
           {experiences.map((e) => (
@@ -277,7 +308,7 @@ function Research() {
   return (
     <Section
       id="pesquisa"
-      index="05"
+      index="06"
       title="Pesquisa & formação"
       sub="Digital Twins e Realidade Virtual para processos industriais, publicados em veículos internacionais."
     >
@@ -326,9 +357,9 @@ function Contact() {
     <section id="contato" className="section contact">
       <div className="container">
         <Reveal className="contact-inner">
-          <span className="section-index">06</span>
+          <span className="section-index">07</span>
           <h2 className="contact-title">
-            Procurando alguém para <em>elevar o front‑end</em> do seu time?
+            Precisa de alguém que entregue <em>o produto inteiro</em>?
           </h2>
           <div className="contact-actions">
             <a href={`mailto:${profile.email}`} className="btn btn-solid btn-lg">
@@ -398,6 +429,9 @@ export default function App() {
         run: () => setWatching(c),
       })),
       ...projects.map((p) => ({ id: `p-${p.title}`, group: "Projetos ao vivo", label: p.title, hint: "abrir", run: open(p.url) })),
+      ...creations
+        .filter((c) => c.url)
+        .map((c) => ({ id: `c-${c.title}`, group: "Jogos & simulações", label: c.title, hint: c.kind, run: open(c.url!) })),
       { id: "copy-email", group: "Ações", label: "Copiar e-mail", hint: profile.email, run: () => copy(profile.email) },
       { id: "theme", group: "Ações", label: "Alternar tema claro / escuro", run: toggle },
       { id: "github", group: "Ações", label: "Abrir GitHub", run: open(profile.github) },
@@ -413,6 +447,7 @@ export default function App() {
         <Hero onWatch={setWatching} />
         <Work onWatch={setWatching} />
         <Projects />
+        <Creations />
         <Stack />
         <Experience />
         <Research />

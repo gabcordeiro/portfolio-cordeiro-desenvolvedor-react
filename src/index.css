@@ -929,10 +929,6 @@ a:hover .project-arrow {
   font-size: 0.98rem;
 }
 
-.stack-col:first-child li {
-  font-weight: 500;
-}
-
 @media (max-width: 860px) {
   .stack-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -943,6 +939,48 @@ a:hover .project-arrow {
   }
   .stack-col:nth-child(n + 3) {
     border-top: 1px solid var(--line);
+  }
+}
+
+/* ============ Creations ============ */
+.make-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.make-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.make-card h3 {
+  font-size: 1.2rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+
+.make-card .xp-desc {
+  flex: 1;
+}
+
+.make-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  color: var(--accent);
+}
+
+.make-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+@media (max-width: 900px) {
+  .make-grid {
+    grid-template-columns: 1fr;
   }
 }
 
