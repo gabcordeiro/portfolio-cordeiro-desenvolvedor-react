@@ -253,6 +253,8 @@ export type Creation = {
   tags: string[];
   url?: string;
   linkLabel?: string;
+  /** URL de uma faixa do SoundCloud para embutir o player no card. */
+  soundcloud?: string;
 };
 
 export const creations: Creation[] = [
@@ -276,10 +278,13 @@ export const creations: Creation[] = [
   },
   {
     kind: "Música",
-    title: "Música autoral",
+    title: "Kord · música autoral",
     description:
-      "Fora do código, faço música. É de lá que vem o cuidado com ritmo, timing e detalhe que levo para animações, jogos e interfaces.",
+      "Fora do código, faço música como Kord. É de lá que vem o cuidado com ritmo, timing e detalhe que levo para animações, jogos e interfaces.",
     tags: ["Composição", "Áudio"],
+    soundcloud: "https://soundcloud.com/kordmusics/dirty-palm-1",
+    url: "https://soundcloud.com/kordmusics",
+    linkLabel: "Ouvir no SoundCloud",
   },
 ];
 

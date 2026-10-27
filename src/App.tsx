@@ -251,6 +251,15 @@ function Creations() {
             <ul className="tags">
               {c.tags.map((t) => <li className="tag" key={t}>{t}</li>)}
             </ul>
+            {c.soundcloud && (
+              <iframe
+                className="make-player"
+                title={`Player do SoundCloud — ${c.title}`}
+                loading="lazy"
+                allow="autoplay"
+                src={`https://w.soundcloud.com/player/?url=${encodeURIComponent(c.soundcloud)}&color=%23c8f560&auto_play=false&hide_related=true&show_comments=false&show_reposts=false&show_teaser=false`}
+              />
+            )}
             {c.url && (
               <a href={c.url} target="_blank" rel="noreferrer" className="make-link">
                 {c.linkLabel ?? "Abrir"} <ArrowUpRight />
@@ -431,7 +440,7 @@ export default function App() {
       ...projects.map((p) => ({ id: `p-${p.title}`, group: "Projetos ao vivo", label: p.title, hint: "abrir", run: open(p.url) })),
       ...creations
         .filter((c) => c.url)
-        .map((c) => ({ id: `c-${c.title}`, group: "Jogos & simulações", label: c.title, hint: c.kind, run: open(c.url!) })),
+        .map((c) => ({ id: `c-${c.title}`, group: "Jogos, simulações & música", label: c.title, hint: c.kind, run: open(c.url!) })),
       { id: "copy-email", group: "Ações", label: "Copiar e-mail", hint: profile.email, run: () => copy(profile.email) },
       { id: "theme", group: "Ações", label: "Alternar tema claro / escuro", run: toggle },
       { id: "github", group: "Ações", label: "Abrir GitHub", run: open(profile.github) },
